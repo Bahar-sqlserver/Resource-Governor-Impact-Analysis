@@ -432,7 +432,8 @@ GO
 
 [REAL RESULT](ResultwithoutRG.png.CSV)
 
-Now comparing the results of both cases together.
+**Now comparing the results of both cases together.**
+**Performance Comparison**
 
 ![RESULT](ResultTable.png)
 
@@ -446,5 +447,5 @@ Now comparing the results of both cases together.
 
 
 
-**Performance Comparison**
-![Result in table](ResultTable.png)
+
+
