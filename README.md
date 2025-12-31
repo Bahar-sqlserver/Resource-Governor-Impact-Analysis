@@ -97,8 +97,8 @@ GO
 
 **Note**:"There is no need to create a login for Default. If it is not created, the login will be treated as Default by default."
 
-**4.enable Resource Governor.**
-**4-1.create the resource pools for every login with an application name.**
+**5.enable Resource Governor.**
+**5-1.create the resource pools for every login with an application name.**
 ```SQL
 DROP RESOURCE POOL AccountingPool;
 GO
@@ -109,7 +109,6 @@ WITH (
 );
 GO
 
-
 DROP RESOURCE POOL ManagementPool;
 GO
 -- Management Pool - 30%
@@ -118,7 +117,6 @@ WITH (
     MAX_CPU_PERCENT = 30
 );
 GO
-
 
 DROP RESOURCE POOL SalesPool;
 GO
@@ -131,11 +129,190 @@ GO
 
 --Default Pool=10%
 ```
-**4-2.
-÷÷÷سض
+**5-2.Enable Resource Governor and Create Classifier Function:**
+```SQL
+USE MASTER;
+GO
+
+CREATE FUNCTION dbo.ResourceGovernorClassifier1()
+RETURNS sysname
+WITH SCHEMABINDING
+AS
+BEGIN
+    DECLARE @GroupName sysname;
+
+    IF APP_NAME() = 'AccountingApp' 
+	SET @GroupName = 'AccountingGroup';
+
+	ELSE IF APP_NAME() = 'ManagementApp'
+	SET @GroupName = 'ManagementGroup';
+
+	ELSE IF APP_NAME() = 'SalesApp'
+	SET @GroupName = 'SalesGroup'; 
+
+	ELSE SET @GroupName = 'default';
+
+    RETURN @GroupName;
+END;
+GO
+
+ALTER RESOURCE GOVERNOR 
+WITH (CLASSIFIER_FUNCTION = dbo.Classifier5);
+
+ALTER RESOURCE GOVERNOR RECONFIGURE;
+GO
+```
+
+**6.Creating a table to capture query execution statistics, including CPU consumption, total elapsed time, CPU time, and related performance metrics:**
+```SQL
+
+DROP TABLE IF EXISTS ResourceGovernorMonitoringLog;
+GO
+
+CREATE TABLE ResourceGovernorMonitoringLog (
+    LogTime            DATETIME2(3),
+    session_id         INT,
+    workload_group     SYSNAME,
+    total_elapsed_time BIGINT,
+    cpu_time           BIGINT,
+    wait_time          BIGINT,
+    wait_type          NVARCHAR(60),
+    pool_name          SYSNAME,
+    pool_cpu_percent   INT,
+    pool_cpu_usage_ms  BIGINT
+);
+GO
+```
+
+**7.We clear the buffer pool to ensure data accuracy.**
+```SQL
+DBCC DROPCLEANBUFFERS;
+GO
+```
+
+**8.execute heavy queries in the Accounting and Sales groups,
+and two light queries in the Management and Default groups, while simultaneously recording metrics such as CPU time, latency, CPU usage, etc., into a table.**
+```SQL
+--Accounting
+SELECT 
+    SUSER_NAME() AS CurrentLogin,
+    APP_NAME() AS CurrentAppName;
+GO
+
+WITH CTE AS (
+    SELECT TOP 3000000 a.*
+    FROM BigTable a
+    CROSS JOIN BigTable b
+    WHERE a.ID < 1000
+)
+SELECT *
+FROM CTE
+ORDER BY NEWID();
+GO
+
+--Sales
+SELECT APP_NAME() AS CurrentAppName, SUSER_NAME() AS CurrentLogin;
+GO
+
+DBCC DROPCLEANBUFFERS;
+GO
+
+WITH CTE AS (
+    SELECT TOP 3000000 a.*
+    FROM BigTable a
+    CROSS JOIN BigTable b
+	    CROSS JOIN BigTable C
+    WHERE a.ID < 10000
+)
+SELECT *
+FROM CTE
+ORDER BY NEWID();
+GO
+
+--Management
+SELECT APP_NAME() AS CurrentAppName, SUSER_NAME() AS CurrentLogin;
+GO
+SELECT * FROM BigTable WHERE ID = 1;
+GO 200
 
 
+```
 
+**9.Executing the light query with the Default login while simultaneously capturing CPU time, CPU usage, latency, and other metrics into The table.**
+```SQL
+
+--Default
+SELECT TOP 1 *
+FROM BigTable
+WHERE ID = 1000;
+GO
+
+
+INSERT INTO ResourceGovernorMonitoringLog
+(
+    LogTime,
+    session_id,
+    workload_group,
+    total_elapsed_time,
+    cpu_time,
+    wait_time,
+    wait_type,
+    pool_name,
+    pool_cpu_percent,
+    pool_cpu_usage_ms
+)
+SELECT
+    SYSDATETIME(),
+    r.session_id,
+    g.name,
+    r.total_elapsed_time,
+    r.cpu_time,
+    r.wait_time,
+    r.wait_type,
+    p.name,
+    p.max_cpu_percent,
+    p.total_cpu_usage_ms
+FROM sys.dm_exec_requests r
+JOIN sys.dm_exec_sessions s ON r.session_id = s.session_id
+JOIN sys.dm_resource_governor_workload_groups g ON s.group_id = g.group_id
+JOIN sys.dm_resource_governor_resource_pools p ON g.pool_id = p.pool_id
+WHERE r.session_id > 50;
+GO
+```
+
+**10.Using the query below, we extract the desired information.**
+
+INSERT INTO ResourceGovernorMonitoringLog
+(
+    LogTime,
+    session_id,
+    workload_group,
+    total_elapsed_time,
+    cpu_time,
+    wait_time,
+    wait_type,
+    pool_name,
+    pool_cpu_percent,
+    pool_cpu_usage_ms
+)
+SELECT
+    SYSDATETIME(),
+    r.session_id,
+    g.name,
+    r.total_elapsed_time,
+    r.cpu_time,
+    r.wait_time,
+    r.wait_type,
+    p.name,
+    p.max_cpu_percent,
+    p.total_cpu_usage_ms
+FROM sys.dm_exec_requests r
+JOIN sys.dm_exec_sessions s ON r.session_id = s.session_id
+JOIN sys.dm_resource_governor_workload_groups g ON s.group_id = g.group_id
+JOIN sys.dm_resource_governor_resource_pools p ON g.pool_id = p.pool_id
+WHERE r.session_id > 50;
+GO
+```
 
 
 
