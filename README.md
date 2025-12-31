@@ -282,6 +282,93 @@ GO
 
 **10.Using the query below, we extract the desired information.**
 ```SQL
+SELECT 
+    log.session_id,
+    log.workload_group,
+    s.program_name AS ApplicationName,
+    AVG(log.total_elapsed_time) AS AvgLatency_ms,
+    AVG(log.cpu_time) AS AvgCPUTime_ms,
+    AVG(log.wait_time) AS AvgWaitTime_ms,
+    log.wait_type,
+    log.pool_name,
+    AVG(log.pool_cpu_percent) AS AvgPoolCPUPercent,
+    AVG(log.pool_cpu_usage_ms) AS AvgPoolCPUUsage_ms
+FROM ResourceGovernorMonitoringLog log
+JOIN sys.dm_exec_sessions s
+    ON log.session_id = s.session_id
+GROUP BY 
+    log.session_id, 
+    log.workload_group, 
+    s.program_name,
+    log.wait_type, 
+    log.pool_name
+ORDER BY log.workload_group, log.session_id;
+GO
+```
+![RESULT](ResultwithResGov.png)
+
+[REAL RESULT](ResultwithResGov.CSV)
+
+ **10.completely disable Resource Governor.**
+
+```SQL
+USE MASTER;
+GO
+
+-- Disable RG if already enabled
+ALTER RESOURCE GOVERNOR DISABLE;
+GO
+
+-- Reset classifier
+ALTER RESOURCE GOVERNOR
+WITH (CLASSIFIER_FUNCTION = NULL);
+GO
+ALTER RESOURCE GOVERNOR RECONFIGURE;
+GO
+```
+
+**11.clear the buffer pool and the table that stored the information, then run the same queries with the same logins and store the results in the table.**
+```SQL
+DBCC DROPCLEANBUFFERS;
+GO
+DELETE 
+FROM ResourceGovernorMonitoringLog;
+GO
+
+--Accounting
+WITH CTE AS (
+    SELECT TOP 3000000 a.*
+    FROM BigTable a
+    CROSS JOIN BigTable b
+    WHERE a.ID < 1000
+)
+SELECT *
+FROM CTE
+ORDER BY NEWID();
+GO
+
+--Sales
+WITH CTE AS (
+    SELECT TOP 3000000 a.*
+    FROM BigTable a
+    CROSS JOIN BigTable b
+	    CROSS JOIN BigTable C
+    WHERE a.ID < 10000
+)
+SELECT *
+FROM CTE
+ORDER BY NEWID();
+GO
+
+--Management
+SELECT * FROM BigTable WHERE ID = 1;
+GO 200
+
+SELECT TOP 1 *
+FROM BigTable
+WHERE ID = 1000;
+GO 25
+
 INSERT INTO ResourceGovernorMonitoringLog
 (
     LogTime,
@@ -312,11 +399,38 @@ JOIN sys.dm_resource_governor_workload_groups g ON s.group_id = g.group_id
 JOIN sys.dm_resource_governor_resource_pools p ON g.pool_id = p.pool_id
 WHERE r.session_id > 50;
 GO
+
 ```
-![RESULT](ResultwithResGov.png)
 
-[REAL RESULT](ResultwithResGov.CSV)
+**12.Using the query below, we extract the desired information.**
+```SQL
 
+SELECT 
+    log.session_id,
+    log.workload_group,
+    s.program_name AS ApplicationName,
+    AVG(log.total_elapsed_time) AS AvgLatency_ms,
+    AVG(log.cpu_time) AS AvgCPUTime_ms,
+    AVG(log.wait_time) AS AvgWaitTime_ms,
+    log.wait_type,
+    log.pool_name,
+    AVG(log.pool_cpu_percent) AS AvgPoolCPUPercent,
+    AVG(log.pool_cpu_usage_ms) AS AvgPoolCPUUsage_ms
+FROM ResourceGovernorMonitoringLog log
+JOIN sys.dm_exec_sessions s
+    ON log.session_id = s.session_id
+GROUP BY 
+    log.session_id, 
+    log.workload_group, 
+    s.program_name,
+    log.wait_type, 
+    log.pool_name
+ORDER BY log.workload_group, log.session_id;
+GO
+```
+![RESULT](Resultwithout RG.png)
+
+[REAL RESULT](Resultwithout RG.png.CSV)
 
 
 
