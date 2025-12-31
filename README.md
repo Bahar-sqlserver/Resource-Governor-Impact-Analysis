@@ -27,8 +27,6 @@ GO  --1,000,000
 ```
 **3.configure Resource Governor from scratch and remove the previous settings.**
 ```SQL
-
-سضم÷
 USE MASTER;
 GO
 
@@ -40,7 +38,6 @@ GO
 ALTER RESOURCE GOVERNOR
 WITH (CLASSIFIER_FUNCTION = NULL);
 GO
-
 ALTER RESOURCE GOVERNOR RECONFIGURE;
 GO
 ```
