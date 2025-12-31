@@ -45,7 +45,70 @@ GO
 ```
 **4.create logins and application names,For each group.**
 ```SQL
+USE Master;
+GO
+--	 create login and thier users
+-- Accounting
+CREATE LOGIN AccountingLogin
+WITH PASSWORD = '123456';
+GO
 
+USE PRACTIE;
+GO
+CREATE USER AccountingUser
+FOR LOGIN AccountingLogin;
+GO
+ALTER ROLE db_owner ADD MEMBER AccountingUser;
+GO
+
+
+USE Master;
+GO
+-- Management
+CREATE LOGIN ManagementLogin
+WITH PASSWORD = '123456';
+GO
+
+USE PRACTIE;
+GO
+CREATE USER ManagementUser
+FOR LOGIN ManagementLogin;
+GO
+ALTER ROLE db_owner ADD MEMBER ManagementUser;
+GO
+
+
+USE Master;
+GO
+-- Sales
+CREATE LOGIN SalesLogin
+WITH PASSWORD = '123456';
+GO
+
+USE PRACTIE;
+GO
+CREATE USER SalesUser
+FOR LOGIN SalesLogin;
+GO
+ALTER ROLE db_owner ADD MEMBER SalesUser;
+GO
+
+
+USE Master;
+GO
+-- Default
+CREATE LOGIN DefaultLogin
+WITH PASSWORD = '123456';
+GO
+
+USE PRACTIE;
+GO
+CREATE USER DefaultUser
+FOR LOGIN DefaultLogin;
+GO
+ALTER ROLE db_owner ADD MEMBER DefaultUser;
+GO
+```
 **4.enable Resource Governor.**
 **4-1.create the resource pools for every login with an application name.**
 ```SQL
