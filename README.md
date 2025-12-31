@@ -428,12 +428,13 @@ GROUP BY
 ORDER BY log.workload_group, log.session_id;
 GO
 ```
-![RESULT](Resultwithout RG.png)
+![RESULT](ResultwithoutRG.png)
 
-[REAL RESULT](Resultwithout RG.png.CSV)
+[REAL RESULT](ResultwithoutRG.png.CSV)
 
+Now comparing the results of both cases together.
 
-
+![RESULT](ResultTable.png)
 
 
 
