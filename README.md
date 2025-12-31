@@ -437,7 +437,7 @@ GO
 
 ![RESULT](ResultTable.png)
 
-قث
+
 **Final Conclusion**
 **Wait times:** Improved significantly ✅
 
