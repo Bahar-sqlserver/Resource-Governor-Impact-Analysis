@@ -437,9 +437,20 @@ GO
 
 ![RESULT](ResultTable.png)
 
+قث
+**Final Conclusion**
+**Wait times:** Improved significantly ✅
 
+**CPU control:** Effective ✅
 
+**Resource allocation:** Targeted and group-specific ✅
 
+**Latency:** Increased for some workloads ⚠️
+
+**Overall:** Resource Governor proved useful in controlling CPU usage and reducing wait times, even though latency increased for certain groups. This trade-off is acceptable when prioritizing fair resource distribution across workloads.
+
+**summary:**
+Resource Governor limits CPU for low-priority queries, increasing their latency and execution time, while ensuring high-priority workloads run efficiently. Overall, it improves system stability and reduces resource contention.
 
 
 
