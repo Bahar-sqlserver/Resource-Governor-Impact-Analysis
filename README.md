@@ -1,6 +1,7 @@
 # Resource-Governor-Impact-Analysis
 **Description: Compares SQL Server behavior with and without Resource Governor, showing how resource control improves stability and prioritizes important queries.**
-All SQL scripts used in this project are available here:[scripts](FullRepro.sql)
+All SQL scripts used in this project are available here:
+[scripts](FullRepro.sql)
 **1. create a table with a large dataset of 1 million rows.**
 ```sql
 DROP TABLE IF EXISTS BigTable;
