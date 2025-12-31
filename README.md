@@ -26,7 +26,7 @@ FROM BigTable;
 GO  --1,000,000
 ```
 **3.configure Resource Governor from scratch and remove the previous settings.**
-```sql
+```SQL
 سضم÷
 USE MASTER;
 GO
