@@ -45,23 +45,6 @@ GO
 ```SQL
 USE Master;
 GO
---	 create login and thier users
--- Accounting
-CREATE LOGIN AccountingLogin
-WITH PASSWORD = '123456';
-GO
-
-USE PRACTIE;
-GO
-CREATE USER AccountingUser
-FOR LOGIN AccountingLogin;
-GO
-ALTER ROLE db_owner ADD MEMBER AccountingUser;
-GO
-
-
-USE Master;
-GO
 -- Management
 CREATE LOGIN ManagementLogin
 WITH PASSWORD = '123456';
@@ -88,7 +71,9 @@ GO
 CREATE USER SalesUser
 FOR LOGIN SalesLogin;
 GO
-ALTER ROLE db_owner ADD MEMBER SalesUser;
+ALTER ROLE db_datareader ADD MEMBER SalesUser;
+GO 
+ALTER ROLE db_datawriter ADD MEMBER SalesUser;
 GO
 
 
@@ -104,7 +89,9 @@ GO
 CREATE USER DefaultUser
 FOR LOGIN DefaultLogin;
 GO
-ALTER ROLE db_owner ADD MEMBER DefaultUser;
+ALTER ROLE db_datareader ADD MEMBER DefaultUser;
+GO 
+ALTER ROLE db_datawriter ADD MEMBER DefaultUser;
 GO
 ```
 
