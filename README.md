@@ -109,6 +109,7 @@ GO
 ```
 
 **Note**:"There is no need to create a login for Default. If it is not created, the login will be treated as Default by default."
+
 **4.enable Resource Governor.**
 **4-1.create the resource pools for every login with an application name.**
 ```SQL
