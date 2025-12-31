@@ -313,7 +313,9 @@ JOIN sys.dm_resource_governor_resource_pools p ON g.pool_id = p.pool_id
 WHERE r.session_id > 50;
 GO
 ```
+![RESULT](ResultwithResGov.png)
 
+[REAL RESULT](ResultwithResGov.CSV)
 
 
 
