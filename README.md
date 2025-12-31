@@ -281,7 +281,7 @@ GO
 ```
 
 **10.Using the query below, we extract the desired information.**
-
+```SQL
 INSERT INTO ResourceGovernorMonitoringLog
 (
     LogTime,
